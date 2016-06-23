@@ -68,11 +68,38 @@ pub fn dedent(text: &str) -> String {
 }
 
 
+fn trim_not_empty(text: &str) -> bool {
+    !text.trim().is_empty()
+}
+
+
 /// Adds 'prefix' to the beginning of selected lines in 'text'.
-pub fn indent(text: &str, prefix: &str) -> String {
+pub fn indent(text: &str,
+              prefix: &str,
+              predicate: Option<&Fn(&str)->bool>) -> String {
 
-    let func = |line: &str| !line.trim().is_empty();
+    // predicate examples:
+    //
+    //     None
+    //
+    //     Some(&str::is_empty)
+    //
+    //     fn f(x: &str) -> bool { false };
+    //     Some(&f)
+    //
+    //     Some(&|x| false)
 
+    let func_default = &trim_not_empty;  // borrow here to live long enough ...
+
+    let func = match predicate {
+        Some(f) => f,
+        None => func_default,
+    };
+
+    // .join
+    // https://doc.rust-lang.org/std/slice/trait.SliceConcatExt.html
+    //
+    // FIXME, collect to String directly ? collect::<String>
     text.lines()
         .map(|line|
                 if func(line) {
