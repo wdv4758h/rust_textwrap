@@ -66,3 +66,20 @@ pub fn dedent(text: &str) -> String {
 
     text
 }
+
+
+/// Adds 'prefix' to the beginning of selected lines in 'text'.
+pub fn indent(text: &str, prefix: &str) -> String {
+
+    let func = |line: &str| !line.trim().is_empty();
+
+    text.lines()
+        .map(|line|
+                if func(line) {
+                    format!("{}{}", prefix, line)
+                } else {
+                    line.to_string()
+                })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
